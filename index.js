@@ -10,8 +10,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json()); 
 
-// user car-rental 
-// pass IqXg0Ij2HXiDfuVs 
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.lx750.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
@@ -32,11 +31,16 @@ app.get('/cars', async(req, res) => {
     res.send(hotels);
 })
       // GET API FOR SHOWING ALL reservation
-app.get('/reserve', async(req, res) => {
-    const cursor = reservecollection.find({});
-    const hotels = await cursor.toArray();
-    res.send(hotels);
-})
+      app.get('/reserve', async(req, res) => {
+        let query = {};
+        const email = req.query.email;
+      if(email){
+        query = {email: email};
+      }
+          const cursor = reservecollection.find(query);
+          const room = await cursor.toArray();
+          res.send(room);
+      })
 // GET API FOR my BOOKED ROOMS & all booked rooms
 app.get('/detailsCar', async(req, res) => {
   let query = {};
@@ -75,17 +79,17 @@ app.post('/cars', async(req, res) => {
     res.json(result);
           
   })
-// //   POST API TO ADD reservation
-app.post('/reserve', async(req, res) => {
-    const newhotel = req.body; 
-    const result = await reservecollection.insertOne(newhotel);
-    console.log('hitting the post',req.body);
-    console.log('added hotel', result)
-    res.json(result);
-          
-  })
+
 //   // POST API TO ADD BOOKING OF ANY ROOM 
 app.post('/detailsCar', async(req, res) => {
+  const newroom = req.body; 
+  const result = await detailscollection.insertOne(newroom);
+  console.log('hitting the post',req.body);      
+  res.json(result);
+        
+}) 
+//   // POST API TO ADD BOOKING OF ANY ROOM 
+app.post('/reserve', async(req, res) => {
   const newroom = req.body; 
   const result = await detailscollection.insertOne(newroom);
   console.log('hitting the post',req.body);      
